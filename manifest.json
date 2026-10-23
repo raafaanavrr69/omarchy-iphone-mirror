@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "raafaanavrr69.iphone",
+  "name": "iPhone",
+  "version": "1.0.0",
+  "author": "raafaanavrr69",
+  "license": "MIT",
+  "description": "Mirror your iPhone screen on your laptop with UxPlay",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "iPhone",
+    "description": "Click to start or stop UxPlay and mirror your iPhone screen",
+    "category": "Display",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

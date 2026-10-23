@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Runs UxPlay as a transient user unit so a shell reload never orphans it.
+# Usage: uxplay-ctl status|start|stop|toggle
+# -p pins the legacy ports (TCP 7000,7001,7100 / UDP 6000,6001,7011) so UFW can allow them.
+set -u
+unit=raafaanavrr69-uxplay
+
+running() { systemctl --user is-active --quiet "$unit"; }
+
+start() {
+  running && return 0
+  # A uxplay started by hand holds the AirPlay name and ports; leave it alone.
+  if pgrep -x uxplay >/dev/null; then
+    notify-send -a UxPlay "iPhone" "UxPlay is already running outside the button; close it first"
+    return 1
+  fi
+  systemctl --user reset-failed "$unit" 2>/dev/null
+  systemd-run --user --quiet --collect --unit="$unit" \
+    --setenv=WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-}" \
+    --setenv=XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-}" \
+    --setenv=DISPLAY="${DISPLAY:-}" \
+    uxplay -nohold -p || return 1
+  notify-send -a UxPlay "iPhone" "UxPlay is on: on the iPhone, open Screen Mirroring and pick this laptop"
+}
+
+stop() {
+  running || return 0
+  systemctl --user stop "$unit"
+  notify-send -a UxPlay "iPhone" "UxPlay stopped"
+}
+
+case "${1:-status}" in
+  status) running && echo on || echo off ;;
+  start) start ;;
+  stop) stop ;;
+  toggle) if running; then stop; else start; fi ;;
+  *) echo "usage: $0 status|start|stop|toggle" >&2; exit 2 ;;
+esac
