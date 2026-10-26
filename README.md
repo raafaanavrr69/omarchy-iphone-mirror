@@ -62,6 +62,19 @@ Discovery uses mDNS (UDP 5353); if the iPhone can't see the laptop, allow it too
 sudo ufw allow 5353/udp
 ```
 
+## Security
+
+While it is on, UxPlay accepts unauthenticated AirPlay connections from anyone on
+the local network. UxPlay 1.73.7 (the current AUR version) has a bug where a single
+crafted RTSP request with both `CSeq` and `X-Apple-Session-ID` headers makes it
+crash (a NULL pointer passed to `strcmp` inside an `assert` in `lib/raop.c`).
+The impact is denial of service: mirroring stops.
+
+To limit exposure, this plugin only runs UxPlay while you have it switched on; there
+is no background service listening when the icon is off. If UxPlay crashes, the icon
+turns off and you can click it again. Prefer using it on networks you trust, and
+keep the firewall ports closed when you are not mirroring.
+
 ## How it works
 
 `bin/uxplay-ctl` runs UxPlay as a transient systemd user unit
